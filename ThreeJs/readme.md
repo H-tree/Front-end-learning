@@ -1,3 +1,4 @@
+# Three.js开发指南
 # 透视相机
 PersperctiveCamera(fov, aspect, near, far) fov垂直视野角度,aspect视椎体长宽比,near视椎体近端面,far视椎体远端面
 可以理解成从地面向前看如何确定看的范围
