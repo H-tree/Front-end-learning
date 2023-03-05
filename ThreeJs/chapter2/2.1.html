@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgloutput"></div>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    <!-- <script type="text/javascript" src="../utils/gui.js"></script> -->
+    <script type="text/javascript" src="../utils/gui.js"></script>
+    </script>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three/examples/jsm/"
+    }
+  }
+</script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+        // Our Javascript will go here.
+        // 创建场景
+        var scene = new THREE.Scene();
+        // 创建相机 PerspectiveCamera 透视相机
+        //PersperctiveCamera(fov, aspect, near, far) fov垂直视野角度,aspect视椎体长宽比,near视椎体近端面,far视椎体远端面
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        //定义一个渲染器
+        var renderer = new THREE.WebGLRenderer();
+        (function () {
+            init();
+        })();
+        function init() {
+            // console.log("Using Three.js version: ",THREE.REVISION);
+            //引入辅助库
+            var stats = initState();
+            //设置渲染大小,此处为整个区域
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            //设置背景色
+            renderer.setClearColor(new THREE.Color(0x000000));
+            //创建坐标轴对象并设置轴线的粗细值为20，红轴为x,绿轴为y,z轴蓝
+            var axes = new THREE.AxesHelper(20);
+            scene.add(axes);
+            //创建一个平面,宽度为60,高度为20
+            var planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1);
+            //设置平面的基本材质和颜色
+            var planeMaterial = new THREE.MeshLambertMaterial({
+                color: 0xffffff
+            });
+            var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            //绕x轴旋转90°
+            plane.rotation.x = -0.5 * Math.PI;
+            //设置平面的位置 x:10,y:0,z:0
+            plane.position.set(10, 0, 0);
+            plane.receiveShadow = true;
+            scene.add(plane);
+            //添加关源
+            //添加环境光 ambientLight
+            var ambientLight = new THREE.AmbientLight(0x3c3c3c);
+            scene.add(ambientLight);
+            var spotLight = new THREE.SpotLight(0xFFFFFF, 1.2, 150, 120);
+            spotLight.position.set(-40, 60, -10);
+            spotLight.castShadow = true;
+            // spotLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
+            // spotLight.shadow.camera.far = 130;
+            // spotLight.shadow.camera.near = 40;
+            scene.add(spotLight)
+            //相机放置的位置
+            camera.position.set(-30, 40, 30);
+            //相机位置的指向为场景的中心，默认为0,0,0中z轴的负方向
+            camera.lookAt(scene.position);
+
+            document.getElementById('webgloutput').appendChild(renderer.domElement);
+            renderer.setClearColor(new THREE.Color(0x000000));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            //渲染器默认没有投影，告诉渲染器需要投影
+            renderer.shadowMap.enabled = true;
+            var controls = new function () {
+                //立方体选择速度
+                //球体旋转速度
+                this.rotationSpeed = 0.02;
+                this.numberOfObjects = scene.children.length;
+                this.removeCube = function() {
+                    var allChildren = scene.children;
+                    var lastObject = allChildren[allChildren.length - 1];
+                    if (lastObject instanceof THREE.Mesh) {
+                        scene.remove(lastObject);
+                        this.numberOfObjects = scene.children.length;
+                    }
+                };
+                this.addCube = function() {
+                    //Math.ceil浮点数向上取整
+                    var cubeSize = Math.ceil(Math.random()*3);
+                    var cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+                    var cubeMaterial = new THREE.MeshLambertMaterial({
+                        color: Math.random()*0xffffff
+                    })
+                    var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+                    cube.castShadow = true;
+                    cube.name = 'cube-' + scene.children.length;
+                    cube.position.x = -30 + Math.round((Math.random()*planeGeometry.parameters.width));
+                    cube.position.y = Math.round((Math.random()*5));
+                    cube.position.z = -20 + Math.round((Math.random()*planeGeometry.parameters.height));
+
+                    scene.add(cube);
+                    this.numberOfObjects = scene.children.length;
+                };
+                this.outputObjects = function() {
+                    console.log(scene.children);
+                }
+            }
+            //创建操作框
+            var gui = new dat.GUI();
+            gui.add(controls, 'rotationSpeed', 0, 0.5);
+            gui.add(controls, 'addCube');
+            gui.add(controls, 'removeCube');
+            gui.add(controls, 'outputObjects');
+            gui.add(controls, 'numberOfObjects').listen();
+            var step = 0;
+            //引入鼠标移动摄像头
+            var trackballControls = new TrackballControls(camera, renderer.domElement);
+            var clock = new THREE.Clock();
+            //添加雾化
+            scene.fog = new THREE.Fog(0xffffff, 0.015, 100);
+            //统一材质
+            scene.overrodeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+            function renderScene() {
+                trackballControls.update(clock.getDelta());
+                stats.update();
+                scene.traverse(function (e) {
+                    // console.log(e);
+                    //遍历场景内的对象,排除plane，THREE.Mesh避免移除摄像机和光源
+                    if (e instanceof THREE.Mesh && e != plane) {
+                        e.rotation.x += controls.rotationSpeed;
+                        e.rotation.y += controls.rotationSpeed;
+                        e.rotation.z += controls.rotationSpeed;
+                    }
+                })
+                requestAnimationFrame(renderScene);
+                renderer.render(scene, camera);
+            }
+            renderScene();
+        }
+        function initState(type) {
+            var panelType = (typeof type !== 'undefined' && type) && (!isNaN(type)) ?
+                parseInt(type) : 0;
+            var state = new Stats();
+            // 0:fps, 1: ms, 2:mb, 3+:custom
+            state.showPanel(panelType);
+            document.body.appendChild(state.dom);
+            return state;
+        }
+        //解决场景自适应
+        window.addEventListener('resize', onResize, false);
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            //改变渲染器的渲染范围
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+
+</html>
