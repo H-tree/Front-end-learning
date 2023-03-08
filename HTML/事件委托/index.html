@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .box1 {
+        width: 100px;
+        height: 100px;
+        background-color: yellow;
+    }
+    .box2 {
+        width: 60px;
+        height: 60px;
+        background-color: red;
+    }
+    .box3 {
+        width: 40px;
+        height: 40px;
+        background-color: black;
+    }
+    /* .box4 {
+        position: absolute;
+        top: 0;
+        width: 40px;
+        height: 40px;
+        background-color: black;
+    } */
+</style>
+<body>
+    <div class="box1">
+        <div class="box2">
+            <div class="box3">
+
+            </div>
+        </div>
+    </div>
+    <!-- <div class="box4"></div> --> 
+    <!-- 相对dom层级 -->
+    <script>
+        const box1 = document.getElementsByClassName('box1')[0];
+        const box2 = document.getElementsByClassName('box2')[0];
+        const box3 = document.getElementsByClassName('box3')[0];
+        // box1.addEventListener('click', (e)=> {console.log(e.target.className, 'box1')});
+        // box2.addEventListener('click', (e)=> {console.log(e.target.className, 'box2',)});
+        // box3.addEventListener('click', (e)=> {console.log(e.target.className, 'box3')});
+        // document.addEventListener('click', (e)=> {console.log(e.target.className, 'box0');})
+        //点击box3时, 3 2 1 0
+        //addEventListener有三个参数，第三个参数默认是false,表示在冒泡阶段调用
+        //使用e.stopPropagation()阻止冒泡事件
+        // box1.addEventListener('click', (e)=> {console.log(e.target.className, 'box1')}, true);
+        // box2.addEventListener('click', (e)=> {console.log(e.target.className, 'box2',)}, true);
+        // box3.addEventListener('click', (e)=> {console.log(e.target.className, 'box3')}, true);
+        // document.addEventListener('click', (e)=> {console.log(e.target.className, 'box0')}, true)
+        //点击box3时, 0 1 2 3
+        box1.addEventListener('click', (e)=> {console.log(e.target.className, 'box1')}, true);
+        box2.addEventListener('click', (e)=> {console.log(e.target.className, 'box2',)}, true);
+        box3.addEventListener('click', (e)=> {console.log(e.target.className, 'box3')}, true);
+        document.addEventListener('click', (e)=> {console.log(e.target.className, 'box0'), e.stopPropagation()}, true)
+        //点击box3时 0
+        
+    </script>
+</body>
+</html>
