@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgloutput"></div>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    <!-- <script type="text/javascript" src="../utils/gui.js"></script> -->
+    <script type="text/javascript" src="../utils/gui.js"></script>
+    </script>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three/examples/jsm/"
+    }
+  }
+</script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+        import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
+        import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
+        import { ParametricGeometries } from 'three/addons/geometries/ParametricGeometries.js';
+        import * as SceneUtils  from 'three/addons/utils/SceneUtils.js'
+        // Our Javascript will go here.
+        // 创建场景
+        var scene = new THREE.Scene();
+        // 创建相机 PerspectiveCamera 透视相机
+        //PersperctiveCamera(fov, aspect, near, far) fov垂直视野角度,aspect视椎体长宽比,near视椎体近端面,far视椎体远端面
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        //定义一个渲染器
+        var renderer = new THREE.WebGLRenderer();
+        (function () {
+            init();
+        })();
+        function init() {
+            // console.log("Using Three.js version: ",THREE.REVISION);
+            //引入辅助库
+            var stats = initState();
+            //设置渲染大小,此处为整个区域
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            //设置背景色
+            renderer.setClearColor(new THREE.Color(0x000000));
+            //创建坐标轴对象并设置轴线的粗细值为20，红轴为x,绿轴为y,z轴蓝
+            var axes = new THREE.AxesHelper(20);
+            scene.add(axes);
+            //创建一个平面,宽度为60,高度为20,第三参数和第四个参数,分别为宽高应该分为几段。
+            var planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1);
+            //设置平面的基本材质和颜色
+            var planeMaterial = new THREE.MeshLambertMaterial({
+                color: 0xffffff
+            });
+            var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            //绕x轴旋转90°
+            plane.rotation.x = -0.5 * Math.PI;
+            //设置平面的位置 x:10,y:0,z:0
+            plane.position.set(0, 0, 0);
+            plane.receiveShadow = true;
+            scene.add(plane);
+            //添加关源
+            //添加环境光 ambientLight
+            var ambientLight = new THREE.AmbientLight(0x3c3c3c);
+            scene.add(ambientLight);
+            var spotLight = new THREE.SpotLight(0xFFFFFF, 1.2, 150, Math.PI / 4, 0, 2);
+            spotLight.position.set(-40, 30, 30);
+            spotLight.castShadow = true;
+            spotLight.shadow.mapSize.height = 1024;
+            spotLight.shadow.mapSize.width = 1024;
+            scene.add(spotLight)
+            //相机放置的位置
+            camera.position.set(-50, 30, 20);
+            //相机位置的指向为场景的中心，默认为0,0,0中z轴的负方向
+            camera.lookAt(new THREE.Vector3(-10, 0 ,0));
+            //渲染器默认没有投影，告诉渲染器需要投影
+            renderer.shadowMap.enabled = true;
+            document.getElementById('webgloutput').appendChild(renderer.domElement);
+            addGemotries(scene);
+            function addGemotries(scene) {
+                var gemos = [];
+                gemos.push(new THREE.CylinderGeometry(1, 4, 4));
+                gemos.push(new THREE.BoxGeometry(2, 2, 2));
+                gemos.push(new THREE.SphereGeometry(2));
+                gemos.push(new THREE.IcosahedronGeometry(4));
+                var points = [
+                    new THREE.Vector3(2, 2, 2),
+                    new THREE.Vector3(2, 2, -2),
+                    new THREE.Vector3(-2, 2, -2),
+                    new THREE.Vector3(-2, 2, 2),
+                    new THREE.Vector3(2, -2, 2),
+                    new THREE.Vector3(2, -2, -2),
+                    new THREE.Vector3(-2, -2, -2),
+                    new THREE.Vector3(-2, -2, 2),
+                ];
+                gemos.push(new ConvexGeometry(points));
+                var pts = [];
+                var detail = .1;
+                var radius = 3;
+                for (var angle = 0.0; angle < Math.PI; angle += detail)
+                    pts.push(new THREE.Vector3(Math.cos(angle)*radius, Math.sin(angle)*radius));
+                gemos.push(new THREE.LatheGeometry(pts, 12));
+                gemos.push(new ParametricGeometry( ParametricGeometries.klein, 25, 25 ));
+                gemos.push(new THREE.TetrahedronGeometry(3));
+                gemos.push(new THREE.TorusGeometry(3, 0.5, 50, 20));
+                var j = 0;
+                for (var i = 0; i < gemos.length; i++) {
+                    var cubeMaterial = new THREE.MeshLambertMaterial({
+                        wireframe: true,
+                        color: Math.random()*0xffffff
+                    });
+                    var materials = [
+                        new THREE.MeshLambertMaterial({
+                            color: Math.random() * 0xffffff
+                        }),
+                        new THREE.MeshBasicMaterial({
+                            color: 0x000000,
+                            wireframe: true
+                        })
+                    ];
+                    var mesh = SceneUtils.createMultiMaterialObject(gemos[i], materials);
+                    mesh.traverse(function (e) {
+                        e.castShadow = true
+                    })
+                    mesh.position.x = -24 + ((i%4)*12);
+                    mesh.position.y = 4;
+                    mesh.position.z = -8 + (j*12);
+                    if ((i + 1)%4 == 0) j++;
+                    scene.add(mesh);
+                }
+            }
+            //创建操作框
+            var step = 0;
+            //引入鼠标移动摄像头
+            var trackballControls = new TrackballControls(camera, renderer.domElement);
+            var clock = new THREE.Clock();
+            //添加雾化
+            scene.fog = new THREE.Fog(0xffffff, 0.015, 100);
+            //统一材质
+            function renderScene() {
+                trackballControls.update(clock.getDelta());
+                stats.update();
+                requestAnimationFrame(renderScene);
+                renderer.render(scene, camera);
+            }
+            renderScene();
+        }
+        function initState(type) {
+            var panelType = (typeof type !== 'undefined' && type) && (!isNaN(type)) ?
+                parseInt(type) : 0;
+            var state = new Stats();
+            // 0:fps, 1: ms, 2:mb, 3+:custom
+            state.showPanel(panelType);
+            document.body.appendChild(state.dom);
+            return state;
+        }
+        //解决场景自适应
+        window.addEventListener('resize', onResize, false);
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            //改变渲染器的渲染范围
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+
+</html>
