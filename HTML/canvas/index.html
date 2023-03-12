@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas</title>
+</head>
+<body>
+    <canvas width="500" height="500" id="canvas" class="haha">
+        当前浏览器不支持canvas元素，请升级或更换浏览器
+    </canvas>
+    <!-- 当前浏览器不支持canvas -->
+    <script>
+        var canvas = document.getElementById('canvas');
+        // var test = document.getElementsByClassName('haha');
+        // console.log(test, 'h') 集合
+        if (canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+            // 2d, webgl, webgl2, bitmaprenderer
+            // 三角形
+            // ctx.moveTo(50, 50);
+            // ctx.lineTo(200, 200);
+            // ctx.lineTo(200, 50);
+            // ctx.lineTo(50, 50);
+
+            //矩形
+            // ctx.strokeRect(50, 50, 200, 100)
+
+            //实体矩形
+            // ctx.fillRect(100, 100, 200, 100)
+
+            //清除内容
+            // ctx.clearRect(75, 75, 100, 70)
+
+            //绘制圆弧
+            // ctx.arc(60, 60, 50, 0, Math.PI, false);
+            //如果不使用beginPath和closePath起始点和结束点会连着不断
+            // ctx.stroke();
+
+            // ctx.beginPath();
+            // ctx.arc(60, 60, 50, 0, Math.PI, false)
+            // ctx.stroke();
+
+            // ctx.beginPath();
+            // ctx.arc(200, 60, 50, 0, Math.PI*2, false);
+            // ctx.stroke();
+
+            // ctx.beginPath();
+            // ctx.arc(60, 200, 50, 0, Math.PI, false);
+            // ctx.fill()
+
+            // ctx.beginPath();
+            // ctx.ellipse(100, 150, 50, 100, Math.PI/2, 0, 2*Math.PI);
+            // ctx.stroke();
+            // ctx.beginPath();
+            // ctx.ellipse(100, 150, 50, 100, 0, 0, 2*Math.PI);
+            // ctx.stroke();
+
+            // ctx.moveTo(50, 50);
+            // ctx.quadraticCurveTo(200, 200, 350, 50);
+            // ctx.stroke();
+
+            // ctx.beginPath()// 开启路径
+            // ctx.moveTo(50, 200);
+            // ctx.bezierCurveTo(150, 50, 250, 350, 350, 200);
+            // ctx.stroke();
+
+            //lineWidth宽度
+            // ctx.beginPath();
+            // ctx.lineWidth = 20;
+            // ctx.moveTo(50, 50);
+            // ctx.lineTo(250, 50);
+            // ctx.stroke();
+
+            ctx.beginPath();
+            ctx.lineWidth = 10;
+            // ctx.lineCap = "butt"
+            // ctx.lineCap = "round"
+            ctx.lineCap = 'square'
+            ctx.moveTo(50, 20);
+            ctx.lineTo(250, 20);
+            ctx.stroke();
+        }
+    </script>
+</body>
+</html>
