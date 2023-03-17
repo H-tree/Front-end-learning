@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+.box{
+    width: 100%;
+    background-color: rgb(209, 209, 235);
+}
+ul{
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+}
+ul li{
+    list-style: none;
+    line-height: 200px;
+    text-align: center;
+    width: 30%;
+    background-color:rgb(191, 191, 202);
+    margin-right: 5%;
+    margin-bottom: 5%;
+}
+li:nth-child(n+7){
+    margin-bottom: 0;
+}
+li:nth-child(3n){
+    margin-right: 0;
+}
+
+</style>
+<body>
+    <div class="box">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>6</li>
+            <li>7</li>
+            <li>8</li>
+            <li>9</li>
+        </ul>
+    </div>
+</body>
+</html>

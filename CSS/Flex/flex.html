@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+.box{
+    /* justify-content: flex-start; */
+    /* justify-content: flex-end; */
+    /* justify-content: center; */
+    /* flex-wrap: nowrap; */
+    /* flex-wrap: wrap-reverse; */
+    width: 1000px;
+    height: 700px;
+    display: flex;
+    background-color: black;
+    /* align-content:flex-start */
+    /* align-content: flex-end; */
+    /* align-content: stretch; */
+    /* align-content: center; */
+    /* align-content: space-between; */
+    /* align-content: space-around; */
+    /* flex-direction: row-reverse; */
+    /* flex-direction: column; */
+    /* flex-direction: column-reverse */
+    /* align-items: center; */
+    /* align-items: flex-start; */
+    /* align-items: stretch */
+}
+.box1{
+    /* align-self: baseline; */
+    /* margin-bottom: auto; */
+    /* margin-top: auto; */
+    font-size: 100px;
+    /* width: 500px; */
+    width: 300px;
+    height: 200px;
+    /* flex:1; */
+    /* flex-basis:200px   width变为200px*/
+    /* flex-basis:50%;width变为弹性容器宽度的50%的效果 */
+    /* flex-basis: 10px; */
+    /* height: 40px; */
+    /* 不给子元素设置宽高内容会被撑开，高度默认会铺满，等高 */
+   /* width: 40px; */
+    /* flex-basis: 10px; */
+    background-color: greenyellow;
+    /* margin: 20px; */
+    /* flex-shrink: 0.5;
+    flex-basis: 66.67%; */
+    /* flex-grow: 1; */
+    /* align-self: center; */
+    /* align-self在交叉轴上设置了auto时无效 */
+}
+.box2{
+    /* padding-bottom: 50px;; */
+    /* width: 500px; */
+    width: 300px;
+    height: 300px;
+    /* flex:1; */
+    /* flex-shrink: 0.5; */
+    /* height: 80px;
+    width: 40px; */
+    /* flex-basis: 33.33%; */
+ background-color: red;
+ /* flex-grow: 1; */
+}
+.box3{
+    /* align-self: baseline; */
+    font-size: 30px;
+    width: 300px;
+    height: 400px;
+    background-color: blue;
+    /* align-self: flex-end; */
+    /* align-self: baseline; */
+}
+.box4{
+    /* align-self: baseline; */
+    width: 300px;
+    height: 500px;
+    background-color: grey;
+    /* align-self: baseline; */
+}
+.box5{
+    align-self: baseline;
+    width: 300px;
+    height: 600px;
+    background-color: orange;
+}
+</style>
+<body>
+    <div class="box"> 
+        <!-- box变为弹性容器,其内的子元素默认在同一行从左到右并排排列 -->
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+        <div class="box4">4</div>
+        <div class="box5">5</div>
+    </div>
+</body>
+
+</html>
