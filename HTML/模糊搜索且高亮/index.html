@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        li {
+            list-style: none;
+        }
+        bid {
+            color: rgb(0, 136, 255);
+        }
+    </style>
+</head>
+<body>
+    <input type="text" class="inp">
+    <section>
+        <ul class="container"></ul>
+    </section>
+    <script>
+        const data = ['北京', '北京烤鸭', '烤红薯'];
+        const container = document.querySelector('.container');
+        function handleInput(value) {
+            const reg = new RegExp(`\(${value}\)`);
+            const search = data.reduce((res, cur) => {
+                if (reg.test(cur)) {
+                    //RegExp.$1保存了最近一次exec或test执行产生的子表达式命中匹配
+                    const match = RegExp.$1;
+                    //$&插入匹配的所有字符串
+                    res.push(`<li>${cur.replace(match, '<bid>$&</bid>')}</li>`);
+                }
+                return res;
+            }, [])
+            return search;
+        }
+        document.querySelector('.inp').addEventListener('input', (e)=>{
+            container.innerHTML = handleInput(e.target.value)
+        })
+    </script>
+</body>
+</html>
