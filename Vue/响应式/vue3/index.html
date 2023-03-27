@@ -11,17 +11,34 @@
 </body>
 <script>
     let activeEffect
-function effect(fn) {
+// function effect(fn) {
+//     const effectFn = () => {
+//         cleanup(effectFn)
+//         activeEffect = effectFn
+//         fn()
+//     }
+//     effectFn.deps = [];
+//     effectFn()
+// }
+//active的指向指着内部的的函数
+//所以需要内部函数执行完以后重新指向外部的函数
+const effectStack = [];
+function effect(fn, options = {}) {
+    //调度执行
     const effectFn = () => {
-        cleanup(effectFn)
-        activeEffect = effectFn
+        cleanup(effectFn);
+        activeEffect = effectFn;
+        effectStack.push(effectFn)
         fn()
+        effectStack.pop();
+        activeEffect = effectStack[effectStack.length - 1]
     }
+    effectFn.options = options;
     effectFn.deps = [];
     effectFn()
 }
 const bucket = new WeakMap();
-const data = {ok: true, text: 'hello world'};
+const data = {ok: true, text: 'hello world', num: 0};
 //weakMap不影响垃圾回收机制的回收
 const obj = new Proxy(data, {
     get(target, key) {
@@ -52,8 +69,20 @@ function triggle(target, key) {
     const depsMap = bucket.get(target);
     if (!depsMap) return
     const effects = depsMap.get(key)
-    const effectsToRun = new Set(effects);
-    effectsToRun.forEach(effectFn => effectFn())
+    //如果trigger触发执行的副作用函数与当前正在执行的副作用函数与当前正在执行的副作用函数相同,则不触发执行
+    const effectsToRun = new Set();
+    effects && effects.forEach(effectFn => {
+        if (effectFn !== activeEffect) {
+            effectsToRun.add(effectFn)
+        }
+    })
+    effectsToRun.forEach(effectFn => {
+        if (effectFn.options.scheduler) {
+            effectFn.options.scheduler(effectFn);
+        } else {
+            effectFn()
+        }
+    })
     // effects && effects.forEach( fn => fn())
 }
 //清除遗留依赖
@@ -73,18 +102,57 @@ function cleanup(effectFn) {
 // obj.ok = false
 document.querySelector('.tips').addEventListener('click', () => {
     console.log('bucket', bucket)
-    // obj.ok = false
-    obj.text = 'hello vue3'
+    obj.ok = false
+    // obj.text = 'hello vue3'
 })
 //effect嵌套问题
-var temp1, temp2;
-effect(function effectFn1() {
-    console.log('effectFn1执行');
-    effect(function effectFn2() {
-        console.log('effectFn2执行');
-        temp2 = obj.ok
+// var temp1, temp2;
+// effect(function effectFn1() {
+//     console.log('effectFn1执行');
+//     effect(function effectFn2() {
+//         console.log('effectFn2执行');
+//         temp2 = obj.ok
+//     })
+//     temp1 = obj.text
+// })
+//无限循环递归
+// effect(() => {
+//     obj.num++;
+// })
+//调度器
+// effect(() => {
+//     console.log(obj.num)
+// }, {
+//     scheduler(fn) {
+//         setTimeout(fn)
+//     }
+// })
+// obj.num++;
+// console.log('完蛋了') // 0 '完蛋了' 1
+const jobQueue = new Set();
+const p = Promise.resolve()
+//一个标志代表是否正在刷新队列
+let isFlushing = false;
+function flushJob() {
+    //如果队列正在刷新,则什么都不做
+    if (isFlushing) return
+    isFlushing = true;
+    p.then(() => {
+        jobQueue.forEach(job => job())
+    }).finally(() => {
+        isFlushing = false
     })
-    temp1 = obj.text
+}
+effect(() => {
+    console.log(obj.num)
+}, {
+    scheduler(fn) {
+        jobQueue.add(fn)
+        flushJob()
+    }
 })
+obj.num++
+obj.num++
+// 0 2 Set具有去重效果
 </script>
 </html>
