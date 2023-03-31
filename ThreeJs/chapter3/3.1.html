@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgloutput"></div>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    <!-- <script type="text/javascript" src="../utils/gui.js"></script> -->
+    <script type="text/javascript" src="../utils/gui.js"></script>
+    </script>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three/examples/jsm/"
+    }
+  }
+</script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+        import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
+        import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
+        import { ParametricGeometries } from 'three/addons/geometries/ParametricGeometries.js';
+        import * as SceneUtils  from 'three/addons/utils/SceneUtils.js'
+        import { Face } from 'three/addons/math/ConvexHull.js';
+        // Our Javascript will go here.
+        // 创建场景
+        var scene = new THREE.Scene();
+        // 创建相机 PerspectiveCamera 透视相机
+        //perspectiveCamera(fov, aspect, near, far) fov垂直视野角度,aspect视椎体长宽比,near视椎体近端面,far视椎体远端面
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        //定义一个渲染器
+        var renderer = new THREE.WebGLRenderer();
+        (function () {
+            init();
+        })();
+        function init() {
+            //引入辅助库
+            var stats = initState();
+            var knot = createMesh(new THREE.TorusKnotGeometry(10, 1, 64, 8, 2, 3));
+            scene.add(knot);
+
+            var step = 0;
+            var loadedMesh;
+            var planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1);
+            //设置平面的基本材质和颜色
+            var planeMaterial = new THREE.MeshLambertMaterial({
+                color: 0xffffff
+            });
+            var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            //绕x轴旋转90°
+            plane.rotation.x = -0.5 * Math.PI;
+            //设置平面的位置 x:10,y:0,z:0
+            plane.position.set(0, 0, 0);
+            plane.receiveShadow = true;
+            scene.add(plane);
+            var controls = new function() {
+                this.radius = knot.geometry.parameters.radius;
+                this.tube = 0.3;
+                this.radialSegments = knot.geometry.parameters.radialSegments;
+                this.tubularSegments = knot.geometry.parameters.tubularSegments;
+                this.p = knot.geometry.parameters.p;
+                this.q = knot.geometry.parameters.q;
+
+                this.redraw = function() {
+                    scene.remove(knot)
+                    knot = createMesh(new THREE.TorusKnotGeometry(controls.radius, controls.tube, Math.round(
+                        controls.radialSegments), Math.round(controls.tubularSegments), Math.round(
+                            controls.p), Math.round(controls.q)
+                        ));
+                    scene.add(knot)
+                }
+                this.save = function() {
+                var result = knot.toJSON();
+                localStorage.setItem('json', JSON.stringify(result));
+                console.log(localStorage.getItem('json'))
+            };
+            var ambientLight = new THREE.AmbientLight(0x494949);
+            scene.add(ambientLight);
+            //相机放置的位置
+            camera.position.set(-30, 40, 30);
+            //相机位置的指向为场景的中心，默认为0,0,0中z轴的负方向
+            camera.lookAt(scene.position);
+            renderer.shadowMap.enabled = true;
+            var spotLight = new THREE.SpotLight(0xffffff, 1, 180, Math.PI/4);
+            spotLight.shadow.mapSize.height = 2048;
+            spotLight.shadow.mapSize.width = 2048;
+            spotLight.position.set(-40, 30, 30);
+            spotLight.castShadow = true;
+            spotLight.lookAt(scene.position);
+            scene.add(spotLight);
+            document.getElementById('webgloutput').appendChild(renderer.domElement);
+
+            this.load = function() {
+                scene.remove(loadedMesh);
+                var json = localStorage.getItem('json');
+                if (json) {
+                    var loadedGeometry = JSON.parse(json);
+                    var loader = new THREE.ObjectLoader();
+                    //解析模型(mesh)
+                    loadedMesh = loader.parse(loadedGeometry);
+                    loadedMesh.position.x -= 40;
+                    scene.add(loadedMesh)
+                }
+            }
+            };
+
+            var gui = new dat.GUI();
+            var ioGui = gui.addFolder('Save & Load');
+            ioGui.add(controls, 'save').onChange(controls.save);
+            ioGui.add(controls, 'load').onChange(controls.load);
+            var meshGui = gui.addFolder('mesh');
+            meshGui.add(controls, 'radius', 0, 40).onChange(controls.redraw);
+            meshGui.add(controls, 'tube', 0, 40).onChange(controls.redraw);
+            meshGui.add(controls, 'radialSegments', 0, 400).step(1).onChange(controls.redraw);
+            meshGui.add(controls, 'tubularSegments', 1, 20).step(1).onChange(controls.redraw);
+            meshGui.add(controls, 'p', 1, 10).step(1).onChange(controls.redraw);
+            meshGui.add(controls, 'q', 1, 15).step(1).onChange(controls.redraw);
+
+            render();
+            
+            function createMesh(geom) {
+                var meshMaterial = new THREE.MeshBasicMaterial({
+                    vertexColors: true,
+                    wireframe: true,
+                    wireframeLinewidth: 2,
+                    color: 0xaaaaaa
+                })
+                meshMaterial.side = THREE.DoubleSide;
+                var mesh = new THREE.Mesh(geom, meshMaterial);
+                mesh.position.set(20, 0, 0)
+
+                return mesh;
+            }
+
+            function render() {
+                stats.update();
+                knot.rotation.y = step += 0.01;
+                requestAnimationFrame(render);
+                renderer.render(scene, camera);
+            }
+        }
+        function initState(type) {
+            var state = new Stats();
+            return state;
+        }
+        //解决场景自适应
+        window.addEventListener('resize', onResize, false);
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            //改变渲染器的渲染范围
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+
+</html>
