@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>VR全景</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgloutput"></div>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    <script type="text/javascript" src="../utils/gui.js"></script>
+    </script>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three/examples/jsm/"
+    }
+  }
+</script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        // Our Javascript will go here.
+        // 创建场景
+        var scene = new THREE.Scene();
+        // 创建相机 PerspectiveCamera 透视相机
+        //PersperctiveCamera(fov, aspect, near, far) fov垂直视野角度,aspect视椎体长宽比,near视椎体近端面,far视椎体远端面
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        //定义一个渲染器
+        var renderer = new THREE.WebGLRenderer();
+        (function () {
+            init();
+        })();
+        function init() {
+            //引入辅助库
+            var stats = initState();
+            //设置渲染大小,此处为整个区域
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            var axes = new THREE.AxesHelper(20);
+            scene.add(axes);
+            var materials = [];
+            //根据左右上下前后的顺序构建六个面的材质集
+            var texture_left = new THREE.TextureLoader().load('./images/_l.jpg');
+            materials.push(new THREE.MeshBasicMaterial({ map: texture_left }));
+
+            var texture_right = new THREE.TextureLoader().load('./images/_r.jpg');
+            materials.push(new THREE.MeshBasicMaterial({ map: texture_right }));
+
+            var texture_top = new THREE.TextureLoader().load('./images/_u.jpg');
+            materials.push(new THREE.MeshBasicMaterial({ map: texture_top }));
+
+            var texture_bottom = new THREE.TextureLoader().load('./images/_d.jpg');
+            materials.push(new THREE.MeshBasicMaterial({ map: texture_bottom }));
+
+            var texture_front = new THREE.TextureLoader().load('./images/_f.jpg');
+            materials.push(new THREE.MeshBasicMaterial({ map: texture_front }));
+
+            var texture_back = new THREE.TextureLoader().load('./images/_b.jpg');
+            materials.push(new THREE.MeshBasicMaterial({ map: texture_back }));
+            const skyBox = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), materials);
+            //逆时针为正面,顺时针为反面
+            //默认正面渲染
+            //各个点乘一个缩放矩阵
+            //原本1,2,3，4变成了4,3,2,1成了反面
+            //y,z不变,x轴取反
+            skyBox.geometry.scale(-1, 1, 1);
+            skyBox.position.set(0, 0, 0);
+            scene.add(skyBox);
+            //相机放置的位置
+            camera.position.set(1, 1, 1);
+            //相机位置的指向为场景的中心，默认为0,0,0中z轴的负方向
+            // camera.lookAt(0, 0, 1);
+
+            document.getElementById('webgloutput').appendChild(renderer.domElement);
+            //引入鼠标移动摄像头
+            //轨道控制器，默认焦点是0,0,0
+            var control = new OrbitControls(camera, renderer.domElement);
+                //按照拖拽的习惯,把图片向右拉,看左边的东西,所以要改成负值
+                control.rotateSpeed = -0.05;
+                //禁止右键平移
+                control.enablePan = false;
+                //自动旋转
+                control.autoRotate = true;
+                //惯性移动
+                control.enableDamping = true;
+                //最大缩放
+                control.maxDistance = 2;
+            var clock = new THREE.Clock();
+            function renderScene() {
+                control.update(clock.getDelta());
+                stats.update();
+                requestAnimationFrame(renderScene);
+                renderer.render(scene, camera);
+            }
+            renderScene();
+        }
+        function initState(type) {
+            var panelType = (typeof type !== 'undefined' && type) && (!isNaN(type)) ?
+                parseInt(type) : 0;
+            var state = new Stats();
+            // 0:fps, 1: ms, 2:mb, 3+:custom
+            state.showPanel(panelType);
+            document.body.appendChild(state.dom);
+            return state;
+        }
+        //解决场景自适应
+        window.addEventListener('resize', onResize, false);
+        function onResize() {
+            //调整视锥长宽比
+            //看到的内容不变,渲染器渲染的范围变小了，就会对内容就行拉升或收缩
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            //改变渲染器的渲染范围
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+
+</html>
