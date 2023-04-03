@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .pacman1,
+    .pacman2 {
+        position: absolute;
+        width: 0px;
+        height: 0px;
+        top: calc(50vh - 50px);
+        left: calc(50vw - 50px);
+        border-right: 50px solid transparent;
+        border-top: 50px solid #279fcf;
+        border-left: 50px solid #279fcf;
+        border-bottom: 50px solid #279fcf;
+        border-radius: 50px;
+        animation: rotate_pacman_up 0.75s 0s infinite
+    }
+
+    .pacman2 {
+        animation: rotate_pacman_down 0.75s 0s infinite
+    }
+
+    .dot1,
+    .dot2,
+    .dot3 {
+        background-color: #279fcf;
+        border-radius: 100%;
+        margin: 2px;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: calc(50vh - 10px);
+        left: calc(50vw + 150px);
+        animation: pacman-balls 1s 0.33s infinite
+    }
+
+    .dot2 {
+        animation: pacman-balls 1s 0.66s infinite
+    }
+
+    .dot3 {
+        animation: pacman-balls 1s 0.99s infinite
+    }
+
+    @keyframes pacman-balls {
+        75% {
+            opacity: 0.7;
+        }
+
+        100% {
+            -webkit-transform: translate(-180px, 0);
+            transform: translate(-180px, 0);
+        }
+    }
+
+    @keyframes rotate_pacman_up {
+        0% {
+            -webkit-transform: rotate(-90deg);
+            transform: rotate(-90deg);
+        }
+
+        50% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+        }
+
+        100% {
+            -webkit-transform: rotate(-90deg);
+            transform: rotate(-90deg);
+        }
+    }
+
+    @keyframes rotate_pacman_down {
+        0% {
+            -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
+        }
+
+        50% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+        }
+
+        100% {
+            -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
+        }
+    }
+</style>
+
+<body>
+<div class="loading">
+    <div class="pacman1"></div>
+    <div class="pacman2"></div>
+    <div class="dot1"></div>
+    <div class="dot2"></div>
+    <div class="dot3"></div>
+</div>
+</body>
+
+</html>

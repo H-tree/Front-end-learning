@@ -2,39 +2,155 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>VR全景</title>
+    <link rel="icon" href="https://img.hbs520.xyz/threeJs/bagua.jpg">
     <style>
         body {
             margin: 0;
+        }
+
+        .pacman1,
+        .pacman2 {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            top: calc(50vh - 50px);
+            left: calc(50vw - 50px);
+            border-right: 50px solid transparent;
+            border-top: 50px solid #279fcf;
+            border-left: 50px solid #279fcf;
+            border-bottom: 50px solid #279fcf;
+            border-radius: 50px;
+            animation: rotate_pacman_up 0.75s 0s infinite
+        }
+
+        .pacman2 {
+            animation: rotate_pacman_down 0.75s 0s infinite
+        }
+
+        .dot1,
+        .dot2,
+        .dot3 {
+            background-color: #279fcf;
+            border-radius: 100%;
+            margin: 2px;
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top: calc(50vh - 10px);
+            left: calc(50vw + 150px);
+            animation: pacman-balls 1s 0.33s infinite
+        }
+
+        .dot2 {
+            animation: pacman-balls 1s 0.66s infinite
+        }
+
+        .dot3 {
+            animation: pacman-balls 1s 0.99s infinite
+        }
+
+        @keyframes pacman-balls {
+            75% {
+                opacity: 0.7;
+            }
+
+            100% {
+                -webkit-transform: translate(-180px, 0);
+                transform: translate(-180px, 0);
+            }
+        }
+
+        @keyframes rotate_pacman_up {
+            0% {
+                -webkit-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+            }
+
+            50% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+            }
+        }
+
+        @keyframes rotate_pacman_down {
+            0% {
+                -webkit-transform: rotate(90deg);
+                transform: rotate(90deg);
+            }
+
+            50% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(90deg);
+                transform: rotate(90deg);
+            }
+        }
+
+        #webgloutput {
+            opacity: 0;
+        }
+
+        .state {
+            opacity: 0;
         }
     </style>
 </head>
 
 <body>
+    <div class="loading">
+        <div class="pacman1"></div>
+        <div class="pacman2"></div>
+        <div class="dot1"></div>
+        <div class="dot2"></div>
+        <div class="dot3"></div>
+    </div>
+    <div class="state"></div>
     <div id="webgloutput"></div>
     <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
-    <script type="text/javascript" src="../utils/gui.js"></script>
-    </script>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 
     <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three/examples/jsm/"
-    }
-  }
-</script>
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.151.2/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.151.2/examples/jsm/"
+        }
+      }
+    </script>
+    <script>
+        const box = document.querySelector('.loading')
+        const webgl = document.querySelector('#webgloutput')
+        const state = document.querySelector('.state')
+        window.addEventListener('load', (event) => {
+            box.style.display = 'none';
+            webgl.style.opacity = 1;
+            state.style.opacity = 1;
+        });
+    </script>
     <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import * as THREE from "three";
+        import { OrbitControls } from "three/addons/controls/OrbitControls.js";
         // Our Javascript will go here.
         // 创建场景
         var scene = new THREE.Scene();
         // 创建相机 PerspectiveCamera 透视相机
         //PersperctiveCamera(fov, aspect, near, far) fov垂直视野角度,aspect视椎体长宽比,near视椎体近端面,far视椎体远端面
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var camera = new THREE.PerspectiveCamera(
+            45,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
         //定义一个渲染器
         var renderer = new THREE.WebGLRenderer();
         (function () {
@@ -42,32 +158,44 @@
         })();
         function init() {
             //引入辅助库
-            var stats = initState();
             //设置渲染大小,此处为整个区域
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
-            var axes = new THREE.AxesHelper(20);
-            scene.add(axes);
             var materials = [];
             //根据左右上下前后的顺序构建六个面的材质集
-            var texture_left = new THREE.TextureLoader().load('./images/_l.jpg');
+            var texture_left = new THREE.TextureLoader().load(
+                "https://img.hbs520.xyz/threeJs/_l.jpg"
+            );
             materials.push(new THREE.MeshBasicMaterial({ map: texture_left }));
 
-            var texture_right = new THREE.TextureLoader().load('./images/_r.jpg');
+            var texture_right = new THREE.TextureLoader().load(
+                "https://img.hbs520.xyz/threeJs/_r.jpg"
+            );
             materials.push(new THREE.MeshBasicMaterial({ map: texture_right }));
 
-            var texture_top = new THREE.TextureLoader().load('./images/_u.jpg');
+            var texture_top = new THREE.TextureLoader().load(
+                "https://img.hbs520.xyz/threeJs/_u.jpg"
+            );
             materials.push(new THREE.MeshBasicMaterial({ map: texture_top }));
 
-            var texture_bottom = new THREE.TextureLoader().load('./images/_d.jpg');
+            var texture_bottom = new THREE.TextureLoader().load(
+                "https://img.hbs520.xyz/threeJs/_d.jpg"
+            );
             materials.push(new THREE.MeshBasicMaterial({ map: texture_bottom }));
 
-            var texture_front = new THREE.TextureLoader().load('./images/_f.jpg');
+            var texture_front = new THREE.TextureLoader().load(
+                "https://img.hbs520.xyz/threeJs/_f.jpg"
+            );
             materials.push(new THREE.MeshBasicMaterial({ map: texture_front }));
 
-            var texture_back = new THREE.TextureLoader().load('./images/_b.jpg');
+            var texture_back = new THREE.TextureLoader().load(
+                "https://img.hbs520.xyz/threeJs/_b.jpg"
+            );
             materials.push(new THREE.MeshBasicMaterial({ map: texture_back }));
-            const skyBox = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), materials);
+            const skyBox = new THREE.Mesh(
+                new THREE.BoxGeometry(10, 10, 10),
+                materials
+            );
             //逆时针为正面,顺时针为反面
             //默认正面渲染
             //各个点乘一个缩放矩阵
@@ -81,40 +209,44 @@
             //相机位置的指向为场景的中心，默认为0,0,0中z轴的负方向
             // camera.lookAt(0, 0, 1);
 
-            document.getElementById('webgloutput').appendChild(renderer.domElement);
+            document.getElementById("webgloutput").appendChild(renderer.domElement);
             //引入鼠标移动摄像头
             //轨道控制器，默认焦点是0,0,0
             var control = new OrbitControls(camera, renderer.domElement);
-                //按照拖拽的习惯,把图片向右拉,看左边的东西,所以要改成负值
-                control.rotateSpeed = -0.05;
-                //禁止右键平移
-                control.enablePan = false;
-                //自动旋转
-                control.autoRotate = true;
-                //惯性移动
-                control.enableDamping = true;
-                //最大缩放
-                control.maxDistance = 2;
+            //按照拖拽的习惯,把图片向右拉,看左边的东西,所以要改成负值
+            control.rotateSpeed = -0.05;
+            //禁止右键平移
+            control.enablePan = false;
+            //自动旋转
+            control.autoRotate = true;
+            //惯性移动
+            control.enableDamping = true;
+            //最大缩放
+            control.maxDistance = 2;
             var clock = new THREE.Clock();
+            var state = initState();
             function renderScene() {
                 control.update(clock.getDelta());
-                stats.update();
+                state.update();
                 requestAnimationFrame(renderScene);
                 renderer.render(scene, camera);
             }
             renderScene();
         }
         function initState(type) {
-            var panelType = (typeof type !== 'undefined' && type) && (!isNaN(type)) ?
-                parseInt(type) : 0;
+            var panelType =
+                typeof type !== "undefined" && type && !isNaN(type)
+                    ? parseInt(type)
+                    : 0;
             var state = new Stats();
             // 0:fps, 1: ms, 2:mb, 3+:custom
             state.showPanel(panelType);
-            document.body.appendChild(state.dom);
+            const stateDom = document.querySelector('.state')
+            stateDom.appendChild(state.dom);
             return state;
         }
         //解决场景自适应
-        window.addEventListener('resize', onResize, false);
+        window.addEventListener("resize", onResize, false);
         function onResize() {
             //调整视锥长宽比
             //看到的内容不变,渲染器渲染的范围变小了，就会对内容就行拉升或收缩
