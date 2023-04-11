@@ -12,6 +12,7 @@
 | {}          |  " "            | NaN      | true      |   
 false、null、undefined、空字符、0和NaN，其它值转为布尔型都为true
 数组转字符串会join()
+数字和NaN相加为NaN
 ## ToPrimitive
 先valueOf,如果不是基本数据类型再toString()
 ## 一元操作符
